@@ -12,6 +12,7 @@ from scipy.special import logsumexp
 import re
 import sys
 import random
+import os
 
 numStates = int(sys.argv[2])
 states = []
@@ -22,8 +23,13 @@ for i in range(1, numStates+1):
 priors = np.ndarray.flatten(np.random.dirichlet(np.ones(numStates), size=1))
 prior = pd.DataFrame(priors, index = states, columns = ["prob"])
 #observations
+filename = ""
+if os.name == 'nt':
+    filename = (os.getcwd()+ "\\" + sys.argv[1])
+else:
+    filename = (sys.argv[1])
 
-with open(sys.argv[1], 'r') as myfile:
+with open(filename, 'r') as myfile:
     data=myfile.read().lower()
     #parse file for words only
     words = re.findall(r"[\w']+|[.,!?;]", data)[:1000]
