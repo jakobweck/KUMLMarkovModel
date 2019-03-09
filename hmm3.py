@@ -13,24 +13,20 @@ import re
 import sys
 import random
 
-breakpoint()
 numStates = int(sys.argv[2])
 states = []
 for i in range(1, numStates+1):
     states.append("s" + str(i))
 #transition probabilities from states to states
-trans = pd.read_csv("trans.csv",index_col=0)
 #probability of starting in each state
 priors = np.ndarray.flatten(np.random.dirichlet(np.ones(numStates), size=1))
 prior = pd.DataFrame(priors, index = states, columns = ["prob"])
-breakpoint()
 #observations
-data = pd.read_csv("obs.csv")
 
 with open(sys.argv[1], 'r') as myfile:
     data=myfile.read().lower()
     #parse file for words only
-    words = re.findall(r"[\w']+|[.,!?;]", data)[:10000]
+    words = re.findall(r"[\w']+|[.,!?;]", data)[:1000]
     obs = pd.Series(words)
 uniqueObs = set(words)
 m = len(uniqueObs)
@@ -135,7 +131,8 @@ def fwd_bwd():
     for t in range(len(obs)-1):
         for i, i_state in enumerate(states):
             ksi_arr[t,i,:] = f_trellis.loc[i_state,t] + np.log(trans.loc[i_state, :]) + np.log(emit.loc[:, obs[t+1]]) + b_trellis.loc[:, t+1] - total_prob
-    # update trans matrix A            
+    # update trans matrix A         
+   #    trans = [doThing(ksi_arr,i,j) for i in enumerate(states) for j in enumerate(states)]   
     for i, i_state in enumerate(states):
        trans_denominator = logsumexp(ksi_arr[:,i,:].flatten())
        for j, j_state in enumerate(states):
@@ -144,20 +141,23 @@ def fwd_bwd():
            trans.loc[i_state, j_state] = np.exp(trans_numerator - trans_denominator)
     # update emit matrix B            
     for j, j_state in enumerate(states):
-       emit_denominator = logsumexp(ksi_arr[:,:,j].flatten())
+        emit_denominator = logsumexp(ksi_arr[:,:,j].flatten())
        
        # loop through all k emission output possibilities
-       for k in emit.columns:
-           emit_numerator_arr = np.array(np.log(0)) 
-           # sum ksi where k == observed output and store it in numerator
-           t = list(obs[obs==k].index)
-           for i in t:
-            emit_numerator_arr = np.append(emit_numerator_arr, ksi_arr[i,:,j].flatten())
-           # sum the list to get the numerator value
-           emit_numerator = logsumexp(emit_numerator_arr.flatten())
-           
-           # update emission probs and convert from log prob to normal prob by using exponentiation
-           emit.loc[j_state, k] = np.exp(emit_numerator - emit_denominator)
+        for k in emit.columns:
+            emit_numerator_arr = np.array(np.log(0)) 
+          #  emit_slow = np.array(np.log(0))
+            # sum ksi where k == observed output and store it in numerator
+            t = list(obs[obs==k].index)
+            # for i in t:
+            #     emit_slow = np.append(emit_slow, ksi_arr[i,:,j].flatten())
+            ksiT = ksi_arr[t]
+            emit_numerator_arr = np.append(emit_numerator_arr, (ksiT).reshape(-1, ksiT.shape[-1])[:,j])
+            # sum the list to get the numerator value
+            emit_numerator = logsumexp(emit_numerator_arr.flatten())
+            
+            # update emission probs and convert from log prob to normal prob by using exponentiation
+            emit.loc[j_state, k] = np.exp(emit_numerator - emit_denominator)
     # return total_prob so that we can test for convergance between consecutive runs
     return total_prob
 
@@ -168,7 +168,7 @@ total_prob = np.log(1)
 # TRAINING
 # run fwd-bwd algo until the probabilies converge
 iteration = 0
-while np.abs(last_total_prob - total_prob) > .01:
+while np.abs(last_total_prob - total_prob) > 1:
     print(np.abs(last_total_prob - total_prob))
     iteration+=1
     print("Beginning iteration #", iteration, "of Baum-Welch forward-backward.")
