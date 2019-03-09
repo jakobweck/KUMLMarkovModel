@@ -14,6 +14,16 @@ def randomLabelFromProbabilitySeries(ser):
             return index
     assert False, 'unreachable'
 
+def randomLabelFromNonNormalProbabilitySeries(ser):
+    rand_val = random.random()
+    total = 0
+    normalizer = 1/sum(ser.values)
+    for index, prob in ser.items():
+        total += (prob * normalizer)
+        if rand_val <= total:
+            return index
+    assert False, 'unreachable'
+
 emit = pd.read_csv("emit_final.csv",index_col=0)
 #transition probabilities from states to states
 trans = pd.read_csv("trans_final.csv",index_col=0)
@@ -32,7 +42,6 @@ def genText(numWords):
     currTransRow = trans.loc[currState,:]
     currEmitRow = emit.loc[currState,:]
     currWord = randomLabelFromProbabilitySeries(currEmitRow)
-    print(currWord)
     for i in range(numWords):
         noSpace = (currWord[0]=='?' or currWord[0]==',' or currWord[0]=='.' or currWord[0]=='!')
         if noSpace:
@@ -45,7 +54,17 @@ def genText(numWords):
         currWord = randomLabelFromProbabilitySeries(currEmitRow)
     return output
 
+def predict(words):
+    breakpoint()
+    words = re.findall(r"[\w']+|[.,!?;]", words)
+    initStateProbs = prior.loc[:, "prob"]
+    currWord = words[0]
+    wordStateProbs = emit.loc[:, currWord]
+    #get a random state, weighted toward the most likely state that produced this word
+    currState = randomLabelFromNonNormalProbabilitySeries(wordStateProbs)
+    currTransRow = trans.loc[currState,:]    
 
+    
 print("Enter 1 to generate text, 2 to predict.")
 opt = int(input(":"))
 if opt==1:
@@ -53,5 +72,6 @@ if opt==1:
     text = genText(int(numWords))
     print(text)
 else:
-    print("Nope")
+    words = input("Input a string from the dataset:")
+    predict(words)
 
