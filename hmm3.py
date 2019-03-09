@@ -198,7 +198,7 @@ viterbi_path_final_out = open("viterbi_path_final.csv","w")
 viterbi_path_final_out.write(pd.DataFrame(viterbi_path).to_csv())
 viterbi_path_final_out.close()
 
-prior_final_out = open("prior.csv", w)
+prior_final_out = open("prior.csv", "w")
 prior_final_out.write(prior.to_csv())
 prior_final_out.close()
 
