@@ -54,16 +54,43 @@ def genText(numWords):
         currWord = randomLabelFromProbabilitySeries(currEmitRow)
     return output
 
+def CheckIfWordWork(words) :
+    words = words.split()
+    match = False
+    wordList = []
+
+    with open("emit_final.csv") as emit:
+        lis = [line.split(',') for line in emit]
+        wordList = lis[0]
+    
+    # print(wordList)
+    # print(wordList[5])
+    # return
+
+    # Are these words part of the dataframe we created?
+    # Let's check
+    for word in words :
+        match = False
+        for st in wordList:
+            if(st == word) :
+                match = True
+                continue
+        if match == False :
+            print("There was no matching candidate for this word: ", word)
+            return False
+    
+    # The words are all valid, continue to viterbi prediction?
+    print("All words entered were valid, continuing to prediction...")
+    return True
+
 def predict(words):
-    breakpoint()
     words = re.findall(r"[\w']+|[.,!?;]", words)
     initStateProbs = prior.loc[:, "prob"]
     currWord = words[0]
     wordStateProbs = emit.loc[:, currWord]
     #get a random state, weighted toward the most likely state that produced this word
     currState = randomLabelFromNonNormalProbabilitySeries(wordStateProbs)
-    currTransRow = trans.loc[currState,:]    
-
+    currTransRow = trans.loc[currState,:]
     
 print("Enter 1 to generate text, 2 to predict.")
 opt = int(input(":"))
@@ -73,5 +100,6 @@ if opt==1:
     print(text)
 else:
     words = input("Input a string from the dataset:")
-    predict(words)
+    if (CheckIfWordWork(words)) :
+        predict(words)
 
