@@ -62,7 +62,8 @@ def predict(words):
     wordStateProbs = emit.loc[:, currWord]
     #get a random state, weighted toward the most likely state that produced this word
     currState = randomLabelFromNonNormalProbabilitySeries(wordStateProbs)
-    currTransRow = trans.loc[currState,:]    
+    currTransRow = trans.loc[currState,:]
+        
 
     
 print("Enter 1 to generate text, 2 to predict.")
