@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jul 27 15:53:23 2016
-
 Adapted from https://github.com/EmilioEsposito/hmm-hidden-markov-model
 All probabilities calculated use log-probabilities, EXCEPT for the inital dfs: emit, trans, prior
-This is effectively equivalent but avoids underflow through repeated division over thousands of iterations
+This avoids underflow through repeated divisions over thousands of iterations
 We must use addition and subtraction of log-probabilities instead of multiplication/division, and use exp() to extract a result
-logsumexp() sums an array of  log-probabilities and converts to regular probability
+logsumexp() sums an array of log-probabilities and converts to regular probability
 """
 
 import pandas as pd
@@ -35,7 +33,7 @@ with open(filename, 'r') as myfile:
     words = re.findall(r"[\w']+|[.,!?;]", data)[:10000]
     obs = pd.Series(words)
 uniqueObs = set(words)
-#total number of possible observations
+#total number of unique possible observations
 m = len(uniqueObs)
 #matrix of probabilities that each state will output a given word
 eprobs = np.ndarray.flatten(np.random.dirichlet(np.ones(m), size=1))
@@ -98,10 +96,7 @@ def backward(prior, trans, emit, states, obs):
                 log_summation = logsumexp(trellis.loc[:,t+1] + np.log(trans.loc[i_state,:]) + np.log(emit.loc[:, obs[t+1]]))
                 
                 trellis.loc[i_state, t] = log_summation
-    
-    # get total prob
-    total_prob = logsumexp(np.log(prior.loc[:,"prob"]) + np.log(emit.loc[:, obs[0]]) + trellis.loc[:, 0])
-    
+        
     return trellis
 
 def calcTrans(arr, i ,j):
