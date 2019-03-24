@@ -30,7 +30,8 @@ else:
 with open(filename, 'r') as myfile:
     data=myfile.read().lower()
     #parse file for words only
-    words = re.findall(r"[\w']+|[.,!?;]", data)[:10000]
+    numToTake = sys.argv[3]
+    words = re.findall(r"[\w']+|[.,!?;]", data)[:numToTake]
     obs = pd.Series(words)
 uniqueObs = set(words)
 #total number of unique possible observations
