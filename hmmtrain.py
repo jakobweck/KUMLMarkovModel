@@ -30,7 +30,7 @@ else:
 with open(filename, 'r') as myfile:
     data=myfile.read().lower()
     #parse file for words only
-    numToTake = sys.argv[3]
+    numToTake = int(sys.argv[3])
     words = re.findall(r"[\w']+|[.,!?;]", data)[:numToTake]
     obs = pd.Series(words)
 uniqueObs = set(words)
