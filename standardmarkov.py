@@ -58,12 +58,6 @@ def genText(words, outputLen, wordsToTake):
     for word in wordCounts:
         wordCounts[word] /= totalCount
 
-    #testing more advanced stuff
-    df = (pd.DataFrame(statePairs).fillna(0))
-  #  edges = _get_markov_edges(df)
-   # pprint(edges)
-
-
     output = ""
     #get random starting word based on frequency of all words
     startingWord = randomItemFromWeightedDict(wordCounts)

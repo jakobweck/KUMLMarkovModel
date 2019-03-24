@@ -1,0 +1,9 @@
+# Hidden Markov Model
+## Austin Irvine and Jakob Wulf-Eck
+
+Requires pandas, numpy, and scipy (for log-probability operations). 
+Takes as input a .txt corpus of raw, natural language text. Use hmmtrain.py -(filename) -(number of hidden states) to train a hidden Markov model with the specified number of states on the corpus. This (lengthy) operation will ultimately output emit_final, trans_final, and prior csv files representing the trained model. Run genfromtrained.py to generate or predict text based on the trained model.
+
+We based our approach to training the model on Emilio Esposito's implementation (https://github.com/EmilioEsposito/hmm-hidden-markov-model). This approach uses log-probability for all probability calculations, preventing the underflow that results from iterative arithmetic operations on very small probabilities. Using the corpus text as our observation sequence, we iteratively perform the Baum-Welch forward-backward algorithm on a random set of input parameters generated using the Dirichlet distribution. Because of the resource-intense nature of the algorithm over our dataset, we relax the convergence requirements as the iteration count increases.
+
+The particular challenge of applying hidden Markov models to natural language is the massive set of possible observations - loading even a tenth of the Shakespare dataset into the training script results in thousands of possible symbols which can be emitted, drastically extending the training process. Unlike applications such as speech recognition, there is little literature available which speculates on the ideal number of hidden states to represent language output. Few reference HMM implementations are available which account for the underflow mitigation and performance requirements of training on input with so many possible observations - many canonical examples operate on less than five output 'words'.

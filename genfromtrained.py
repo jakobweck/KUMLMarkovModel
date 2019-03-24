@@ -144,6 +144,7 @@ def predict(words):
     # Get a random state, weighted toward the most likely state that produced this word
     currState = randomLabelFromNonNormalProbabilitySeries(wordStateProbs)
     currTransRow = trans.loc[currState,:]
+    
     print("CURRENT STATE: ", currState)
     # print("Current Trans Row: ", currTransRow)
 
